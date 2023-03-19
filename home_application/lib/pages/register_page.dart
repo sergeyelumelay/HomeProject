@@ -15,8 +15,8 @@ class RegisterPage  extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   // controllers
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
+  final confirmPasswordCotroller = TextEditingController();
 
   // sign up user controller
   void signUpUser() async {
@@ -32,10 +32,16 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // firebase creating new account
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      // check if the password is the same
+      if (passwordController.text == confirmPasswordCotroller.text){
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
       email: emailController.text,
       password: passwordController.text,
-      );
+        );
+      } else {
+        // show error message if the password don't match
+        showErrorMessage("Password don't match");
+      }
       // pop the loading circle
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
@@ -104,7 +110,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 // repeat password textfield
                 MyTextField(
-                  controller: passwordController,
+                  controller: confirmPasswordCotroller,
                   hintText: 'Repeat Password',
                   obscureText: true,
                 ),
@@ -127,13 +133,14 @@ class _RegisterPageState extends State<RegisterPage> {
           
                 const SizedBox(height: 25),
           
-                // sign in button
+                // sign up button
                 LoginButton(
+                  text: "Sign Up",
                   onTap: signUpUser,
                 ),
           
                 const SizedBox(height: 150),
-                // not a member? register now
+                // registered account
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
                   child: Row(children: [
